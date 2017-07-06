@@ -1,0 +1,30 @@
+function [M, N] = CalcSumProd(pCAry, qCAry)
+    M = pCAry * qCAry';
+    Sxx = M(1, 1);
+    Sxy = M(1, 2);
+    Sxz = M(1, 3);
+    Syx = M(2, 1);
+    Syy = M(2, 2);
+    Syz = M(2, 3);
+    Szx = M(3, 1);
+    Szy = M(3, 2);
+    Szz = M(3, 3);
+
+    N = zeros(4, 4);
+    N(1, 1) = Sxx + Syy + Szz;
+    N(1, 2) = Syz - Szy;
+    N(1, 3) = Szx - Sxz;
+    N(1, 4) = Sxy - Syx;
+    N(2, 1) = N(1, 2);
+    N(2, 2) = Sxx - Syy - Szz;
+    N(2, 3) = Sxy + Syx;
+    N(2, 4) = Szx + Sxz;
+    N(3, 1) = N(1, 3);
+    N(3, 2) = N(2, 3);
+    N(3, 3) = -1 * Sxx + Syy - Szz;
+    N(3, 4) = Syz + Szy;
+    N(4, 1) = N(1, 4);
+    N(4, 2) = N(2, 4);
+    N(4, 3) = N(3, 4);
+    N(4, 4) = -1 * Sxx - Syy + Szz;
+end
