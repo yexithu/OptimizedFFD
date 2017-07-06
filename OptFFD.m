@@ -6,7 +6,8 @@ q = q';
 
 % p source vertices , q target vertices
 % pArray, qArray sample points
-[pArray, qArray] = SampleMatrix(p, q, 100);
+pArray = SampleMatrix(p, 100);
+qArray = SampleMatrix(q, 100);
 
 % grid num g, current control point curCP
 g = 8;
