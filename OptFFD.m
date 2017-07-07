@@ -11,7 +11,7 @@ qArray = SampleMatrix(q, 100);
 
 % grid num g, current control point curCP
 g = 8;
-curCP = CalcCtrlPt(pArray, g);
+[orgCP, pBsCoeff] = CalcCtrlPt(pArray, g);
 
 % iterative optimization
 while true
