@@ -5,7 +5,7 @@ function [dstCP] = CalcDstCP(curCP, pArray, qArray, rotM, lamda)
     end
 
     global preCompStruct;
-    [obsLHS, obsRHS] = CalcFObsCoeff(curCP, preCompStruct.bsCoeff, qArray);
+    [obsLHS, obsRHS] = CalcFObsCoeff(curCP, preCompStruct.pBsCoeff, qArray);
     [regLHS, regRHS] = CalcFRegCoeff(rotM, preCompStruct.orgCP, ...
                             preCompStruct.nbrPointers, preCompStruct.g);
     
@@ -13,6 +13,7 @@ function [dstCP] = CalcDstCP(curCP, pArray, qArray, rotM, lamda)
     RHS = obsRHS + lamda * regRHS;
     %solve linaer equations
     dstCP = linsolve(LHS, RHS);
+    dstCP = dstCP';
 end
 
 function [obsLHS, obsRHS] = CalcFObsCoeff(curCP, bsCoeff, qArray)
@@ -36,7 +37,6 @@ function [obsLHS, obsRHS] = CalcFObsCoeff(curCP, bsCoeff, qArray)
 end
 
 function [regLHS, regRHS] = CalcFRegCoeff(rotM, orgCP, nbrPointers, g)
-
     p = (g + 1)^3;
 
     regLHS = zeros(p, p);

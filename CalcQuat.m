@@ -11,5 +11,5 @@ function [quat, rotM, lambda] = CalcQuatRotM(N)
         error('Lambda < 0\n');
     end
 
-    rotM = quat2rotm(quat');
+    rotM = Q2Rm(quat');
 end

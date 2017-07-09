@@ -1,8 +1,10 @@
 % read objet
-[p,Fp] = read_vertices_and_faces_from_obj_file('health.obj');
-[q,Fq] = read_vertices_and_faces_from_obj_file('injured.obj');
-p = p';
-q = q';
+% [p,Fp] = read_vertices_and_faces_from_obj_file('health.obj');
+% [q,Fq] = read_vertices_and_faces_from_obj_file('injured.obj');
+% p = p';
+% q = q';
+
+load('data.mat');
 
 % p source vertices , q target vertices
 % pArray, qArray sample points
@@ -18,11 +20,11 @@ PreCompute(g);
 % grid num g, current control point curCP
 [orgCP, pBsCoeff] = CalcCtrlPt(pArray, g);
 preCompStruct.orgCP = orgCP;
-preCompStruct, pBsCoeff = pBsCoeff;
+preCompStruct.pBsCoeff = pBsCoeff;
 
 rotM = cell((g+1)^3, 1);
 for index = 1: (g+1)^3
-    rotM = eye(3);
+    rotM{index} = eye(3);
 end
 
 
@@ -41,5 +43,3 @@ while iter < maxIter
     iter = iter + 1;
 end
 
-% apply free form deformation with final control points
-transP = FFD(curCP, p);
