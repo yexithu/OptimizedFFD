@@ -28,18 +28,18 @@ end
 
 curCP = preCompStruct.orgCP;
 % iterative optimization
-while true
+
+maxIter = 10;
+iter = 1;
+while iter < maxIter
     % calcualte target control points
     dstCP = CalcDstCP(curCP, pArray, qArray, rotM, 1);
 
     % transform current control points in a as-rigid-as-possible way
-    transCP = CalcTransCP(orgCP, dstCP);
+    rotM = CalcTransCP(orgCP, dstCP);
 
-    % apply transformation to current control points
-    curCP = transCP;
+    iter = iter + 1;
 end
 
 % apply free form deformation with final control points
 transP = FFD(curCP, p);
-
-% show final result
