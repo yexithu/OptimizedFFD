@@ -9,8 +9,13 @@ q = q';
 pArray = SampleMatrix(p, 100);
 qArray = SampleMatrix(q, 100);
 
-% grid num g, current control point curCP
 g = 8;
+
+global preCompStruct;
+preCompStruct = struct();
+PreCompute(g);
+
+% grid num g, current control point curCP
 [orgCP, pBsCoeff] = CalcCtrlPt(pArray, g);
 
 % iterative optimization
@@ -19,7 +24,7 @@ while true
     dstCP = CalcDstCP(curCP, pArray, qArray);
 
     % transform current control points in a as-rigid-as-possible way
-    transCP = CalcTransCP(curCP, dstCP);
+    transCP = CalcTransCP(orgCP, dstCP);
 
     % apply transformation to current control points
     curCP = transCP;

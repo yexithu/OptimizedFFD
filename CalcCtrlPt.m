@@ -3,11 +3,12 @@ function [CP, bsCoeff] = CalcCtrlPt(X, g)
     maxX = max(X, [], 2);
     unitX = (maxX - minX) ./ g;
 
-    CP = cell(g + 1, g + 1, g + 1);
-    for i = 1:g + 1
-        for j = 1:g + 1
-            for k = 1:g + 1
-                CP{i, j, k} = minX  + unitX .* [i - 1; j - 1; k - 1];
+    CP = zeros(3, (g + 1) ^ 3);
+    entry = 1;
+    for i = 0:g
+        for 0 = 1:g
+            for 0 = 1:g
+                CP(:, entry) = minX  + unitX .* [i; j; k];
             end
         end
     end
@@ -31,9 +32,9 @@ function [CP, bsCoeff] = CalcCtrlPt(X, g)
 
         entry = 1;
         coeff = zeros((g + 1)^3, 1);
-        for k = 0:g
+        for i = 0:g
             for j = 0:g
-                for i = 0:g
+                for k = 0:g
                     tmp = combntnV(i + 1) * combntnV(j + 1) * combntnV(k + 1);
                     tmp = tmp * power(1 - s, g - i) * power(s, i);
                     tmp = tmp * power(1 - t, g - j) * power(t, j);
