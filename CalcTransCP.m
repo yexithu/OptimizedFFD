@@ -23,7 +23,7 @@ function rotCell = CalcTransCP(curCP, dstCP, scale)
                 curEdge = curCenter - curNbr;
                 dstEdge = dstCenter - dstNbr;
 
-                [idx, dist] = knnsearch(curEdge', dstEdge');
+                [idx, ~] = knnsearch(curEdge', dstEdge');
                 cEdge = dstEdge(:,idx);
                 [~, ~, pCEdge, qCEdge] = Centralization(curEdge, cEdge);
                 [~, N] = CalcSumProd(pCEdge, qCEdge);
@@ -33,9 +33,7 @@ function rotCell = CalcTransCP(curCP, dstCP, scale)
                 
                 %collect rotation
                 rotCell{cpIdx} = {rotation};
-                   
-                err = sum(dist) / length(dist);
-                fprintf('err: %f\n', err);
+                cpIdx = cpIdx + 1;
             end
         end
     end
