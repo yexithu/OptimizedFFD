@@ -1,4 +1,4 @@
-function [rotCell] = CalcTransCP(curCP, dstCP, scale)
+function rotCell = CalcTransCP(curCP, dstCP, scale)
     global preComputeStruct;
     
     if (nargin<3)
@@ -7,28 +7,21 @@ function [rotCell] = CalcTransCP(curCP, dstCP, scale)
     
     nbr = preComputeStruct.nbrPointers;
     g = preComputeStruct.g;
-    idx = 1;
-    gsqure = (g+1)^2;
+    cpIdx = 1;
+    rotCell = cell((g+1)^3, 1);
     
     for i = 1:(g+1)
         for j = 1:(g+1)
             for k = 1:(g+1)
 
-                curNbr = curCP(nbr(idx));
-                dstNbr = dstCP(nbr(idx));
+                curNbr = curCP(nbr(cpIdx));
+                dstNbr = dstCP(nbr(cpIdx));
                 
-                curCenter = curCP(i * gsqure + j * (g + 1) + k + 1);
-                dstCenter = dstCP(i * gsqure + j * (g + 1) + k + 1);
+                curCenter = curCP(cpIdx);
+                dstCenter = dstCP(cpIdx);
 
                 curEdge = curCenter - curNbr;
                 dstEdge = dstCenter - dstNbr;
-
-                curEdge = curEdgeWithCenter;
-                centerIdx = find(curEdge==[0,0,0]');
-                curEdge(:, centerIdx) = [];
-                dstEdge = dstEdgeWithCenter;
-                dstEdge(:, centerIdx) = [];
-
 
                 [idx, dist] = knnsearch(curEdge', dstEdge');
                 cEdge = dstEdge(:,idx);
@@ -39,7 +32,7 @@ function [rotCell] = CalcTransCP(curCP, dstCP, scale)
                 rotation = scale * r;
                 
                 %collect rotation
-                rotCell(i,j,k) = {rotation};
+                rotCell{cpIdx} = {rotation};
                    
                 err = sum(dist) / length(dist);
                 fprintf('err: %f\n', err);
