@@ -14,8 +14,8 @@ function rotCell = CalcTransCP(curCP, dstCP, scale)
         for j = 1:(g+1)
             for k = 1:(g+1)
 
-                curNbr = curCP(nbr(cpIdx));
-                dstNbr = dstCP(nbr(cpIdx));
+                curNbr = curCP(nbr{cpIdx});
+                dstNbr = dstCP(nbr{cpIdx});
                 
                 curCenter = curCP(cpIdx);
                 dstCenter = dstCP(cpIdx);
@@ -32,7 +32,7 @@ function rotCell = CalcTransCP(curCP, dstCP, scale)
                 rotation = scale * r;
                 
                 %collect rotation
-                rotCell{cpIdx} = {rotation};
+                rotCell{cpIdx} = rotation;
                 cpIdx = cpIdx + 1;
             end
         end
