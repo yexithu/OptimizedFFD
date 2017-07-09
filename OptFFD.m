@@ -17,11 +17,20 @@ PreCompute(g);
 
 % grid num g, current control point curCP
 [orgCP, pBsCoeff] = CalcCtrlPt(pArray, g);
+preCompStruct.orgCP = orgCP;
+preCompStruct, pBsCoeff = pBsCoeff;
 
+rotM = cell((g+1)^3, 1);
+for index = 1: (g+1)^3
+    rotM = eye(3);
+end
+
+
+curCP = preCompStruct.orgCP;
 % iterative optimization
 while true
     % calcualte target control points
-    dstCP = CalcDstCP(curCP, pArray, qArray);
+    dstCP = CalcDstCP(curCP, pArray, qArray, rotM, 1);
 
     % transform current control points in a as-rigid-as-possible way
     transCP = CalcTransCP(orgCP, dstCP);
