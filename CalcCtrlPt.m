@@ -6,9 +6,10 @@ function [CP, bsCoeff] = CalcCtrlPt(X, g)
     CP = zeros(3, (g + 1) ^ 3);
     entry = 1;
     for i = 0:g
-        for 0 = 1:g
-            for 0 = 1:g
+        for j = 0:g
+            for k = 0:g
                 CP(:, entry) = minX  + unitX .* [i; j; k];
+                entry = entry + 1;
             end
         end
     end
