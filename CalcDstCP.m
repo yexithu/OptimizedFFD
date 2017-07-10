@@ -1,30 +1,30 @@
-function [dstCP] = CalcDstCP(curCP, pArray, qArray, rotM, lamda)
+function [dstCP, loss] = CalcDstCP(curCP, pArray, qArray, rotM, lamda)
 
     if nargin < 5
         lamda = 1;
     end
 
     global preCompStruct;
-    [obsLHS, obsRHS] = CalcFObsCoeff(curCP, preCompStruct.pBsCoeff, qArray);
-    [regLHS, regRHS] = CalcFRegCoeff(rotM, preCompStruct.orgCP, ...
+    [obsLHS, obsRHS, obsLoss] = CalcFObsCoeff(curCP, preCompStruct.pBsCoeff, qArray);
+    [regLHS, regRHS, regLoss] = CalcFRegCoeff(rotM, preCompStruct.orgCP, curCP, ...
                             preCompStruct.nbrPointers, preCompStruct.g);
 
     LHS = obsLHS + lamda * regLHS;
     RHS = obsRHS + lamda * regRHS;
-    %solve linaer equations
-    save('coeff.mat', 'obsLHS', 'obsRHS', 'regLHS', 'regRHS');
+    % save
     dstCP = linsolve(LHS, RHS);
     dstCP = dstCP';
+    loss = [obsLoss; regLoss; obsLoss + lamda * regLoss];
 end
 
-function [obsLHS, obsRHS] = CalcFObsCoeff(curCP, bsCoeff, qArray)
+function [obsLHS, obsRHS, obsLoss] = CalcFObsCoeff(curCP, bsCoeff, qArray)
     n = length(bsCoeff);
     % apply FFD on pArray
     tArray = FFD(bsCoeff, curCP);
 
     % find correspounding closest point
     % knnSearch
-    idx = knnsearch(qArray', tArray');
+    [idx, dist] = knnsearch(qArray', tArray');
     cArray = qArray(:, idx);
 
     % formulation 2B * B' * P = 2B * C
@@ -33,25 +33,37 @@ function [obsLHS, obsRHS] = CalcFObsCoeff(curCP, bsCoeff, qArray)
     B = cell2mat(bsCoeff');
     C = cArray';
 
+    obsLoss = sum(dist) / n;
+
     obsLHS = 2 * B * B' / n;
-    obsRHS = B * C / n;
+    obsRHS = 2 * B * C / n;
 end
 
-function [regLHS, regRHS] = CalcFRegCoeff(rotM, orgCP, nbrPointers, g)
+function [regLHS, regRHS, regLoss] = CalcFRegCoeff(rotM, orgCP, curCP, nbrPointers, g)
     p = (g + 1)^3;
 
     regLHS = zeros(p, p);
     regRHS = zeros(p, 3);
+
+    regLoss = 0;
     % formulation A * P = B
     for i = 1:p
         ptrs = nbrPointers{i};
+
+        orgCenter = orgCP(:, i);
+        curCenter = curCP(:, i);
+        orgEdges = orgCP(:, ptrs) - orgCenter;
+        curEdges = curCP(:, ptrs) - curCenter;
+        diffEdges = curEdges - rotM{i} * orgEdges;
+
+        regLoss = regLoss + sum(dot(diffEdges, diffEdges));
 
         lineA = zeros(1, p);
         lineA(i) = length(ptrs);
         lineA(ptrs) = -1;
         lineA = 4 * lineA;
         regLHS(i, :) = lineA;
-        
+
         lineB = zeros(1, 3);
         for nbrIndex = 1:length(ptrs)
             j = ptrs(nbrIndex);
@@ -62,7 +74,8 @@ function [regLHS, regRHS] = CalcFRegCoeff(rotM, orgCP, nbrPointers, g)
 
         regRHS(i, :) = lineB;
     end
-
+    
+    regLoss = regLoss / p;
     regLHS = regLHS / p;
     regRHS = regRHS / p;
 end
