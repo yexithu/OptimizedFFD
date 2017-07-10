@@ -1,11 +1,7 @@
-function rotCell = CalcTransCP(curCP, dstCP, scale)
+function rotCell = CalcTransCP(curCP, dstCP)
     global preCompStruct;
-    if (nargin<3)
-        scale = 1;
-    end
     nbr = preCompStruct.nbrPointers;
     g = preCompStruct.g;
-    cpIdx = 1;
     rotCell = cell((g+1)^3, 1);
 
     n = size(curCP, 2);
@@ -24,7 +20,7 @@ function rotCell = CalcTransCP(curCP, dstCP, scale)
         [~, N] = CalcSumProd(pCEdge, qCEdge);
 
         [~, r, ~] = CalcQuat(N);
-        % scale = CalcScale(curNbr, dstNbr);
+%         scale = CalcScale(curNbr, dstNbr);
         scale = 1;
         rotation = scale * r;
 
