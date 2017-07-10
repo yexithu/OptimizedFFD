@@ -8,10 +8,11 @@ function [dstCP] = CalcDstCP(curCP, pArray, qArray, rotM, lamda)
     [obsLHS, obsRHS] = CalcFObsCoeff(curCP, preCompStruct.pBsCoeff, qArray);
     [regLHS, regRHS] = CalcFRegCoeff(rotM, preCompStruct.orgCP, ...
                             preCompStruct.nbrPointers, preCompStruct.g);
-    
+
     LHS = obsLHS + lamda * regLHS;
     RHS = obsRHS + lamda * regRHS;
     %solve linaer equations
+    save('coeff.mat', 'obsLHS', 'obsRHS', 'regLHS', 'regRHS');
     dstCP = linsolve(LHS, RHS);
     dstCP = dstCP';
 end
@@ -43,7 +44,7 @@ function [regLHS, regRHS] = CalcFRegCoeff(rotM, orgCP, nbrPointers, g)
     regRHS = zeros(p, 3);
     % formulation A * P = B
     for i = 1:p
-        ptrs = nbrPointers{p};
+        ptrs = nbrPointers{i};
 
         lineA = zeros(1, p);
         lineA(i) = length(ptrs);

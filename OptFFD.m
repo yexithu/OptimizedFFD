@@ -27,19 +27,28 @@ for index = 1: (g+1)^3
     rotM{index} = eye(3);
 end
 
-
+orgRotM = rotM;
 curCP = preCompStruct.orgCP;
 % iterative optimization
 
 maxIter = 10;
-iter = 1;
+iter = 0;
 while iter < maxIter
     % calcualte target control points
+    fprintf('Iter %d\n', iter);
     dstCP = CalcDstCP(curCP, pArray, qArray, rotM, 1);
 
+    curCP = dstCP;
     % transform current control points in a as-rigid-as-possible way
     rotM = CalcTransCP(orgCP, dstCP);
 
     iter = iter + 1;
+
+    pause(0.5);
 end
 
+% figure;
+% scatter3(orgCP(1, :), orgCP(2, :), orgCP(3, :));
+
+% figure;
+% scatter3(dstCP(1, :), dstCP(2, :), dstCP(3, :));

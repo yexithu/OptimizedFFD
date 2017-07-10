@@ -24,7 +24,8 @@ function rotCell = CalcTransCP(curCP, dstCP, scale)
         [~, N] = CalcSumProd(pCEdge, qCEdge);
 
         [~, r, ~] = CalcQuat(N);
-        scale = CalcScale(curNbr, dstNbr);
+        % scale = CalcScale(curNbr, dstNbr);
+        scale = 1;
         rotation = scale * r;
 
         %collect rotation

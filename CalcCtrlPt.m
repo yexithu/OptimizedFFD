@@ -1,6 +1,12 @@
 function [CP, bsCoeff] = CalcCtrlPt(X, g)    
     minX = min(X, [], 2);
     maxX = max(X, [], 2);
+    diffX = (maxX - minX);
+
+    marginX = 0.05 * diffX;
+
+    minX = minX - marginX;
+    maxX = maxX + marginX;
     unitX = (maxX - minX) ./ g;
 
     CP = zeros(3, (g + 1) ^ 3);
