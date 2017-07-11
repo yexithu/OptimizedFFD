@@ -32,9 +32,9 @@ end
 orgRotM = rotM;
 curCP = preCompStruct.orgCP;
 % iterative optimization
-lim = [-50 150];
-drawPoint(curCP, 0, lim);
-maxIter = 30;
+lim = [-25 200];
+drawPoint(curCP, qArray, 0, lim);
+maxIter = 50;
 iter = 0;
 
 lossCurve = zeros(3, maxIter);
@@ -42,15 +42,15 @@ while iter < maxIter
     % calcualte target control points
     fprintf('Iter %d\n', iter);
 
-    [dstCP, loss] = CalcDstCP(curCP, pArray, qArray, rotM, 1);
+    [dstCP, loss] = CalcDstCP(curCP, pArray, qArray, rotM, 0.1);
     lossCurve(:, iter + 1) = loss;
     curCP = dstCP;
     % transform current control points in a as-rigid-as-possible way
     rotM = CalcTransCP(orgCP, dstCP);
-    drawPoint(dstCP, iter, lim);
+    drawPoint(dstCP, qArray, iter, lim);
     iter = iter + 1;
 
 end
 
-generateGif(iter-1, 20);
+generateGif(iter-1, 10);
 save('loss.mat', 'lossCurve');
