@@ -9,4 +9,5 @@ function GenerateGif(prefix, imgCount, rate)
         img = imread(path);
         writeVideo(outputVideo, img)
     end
+    close(outputVideo);
 end
