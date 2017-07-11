@@ -8,6 +8,7 @@ clear;
 
 load('data.mat');
 
+prefix = './ffd_result/';
 % p source vertices , q target vertices
 % pArray, qArray sample points
 pArray = SampleMatrix(p, 100);
@@ -33,7 +34,7 @@ orgRotM = rotM;
 curCP = preCompStruct.orgCP;
 % iterative optimization
 lim = [-25 200];
-drawPoint(curCP, qArray, 0, lim);
+DrawPoint(prefix, pArray, qArray, 0, lim, orgCP);
 maxIter = 50;
 iter = 0;
 
@@ -47,10 +48,12 @@ while iter < maxIter
     curCP = dstCP;
     % transform current control points in a as-rigid-as-possible way
     rotM = CalcTransCP(orgCP, dstCP);
-    drawPoint(dstCP, qArray, iter, lim);
+
+    Y = FFD(pBsCoeff, curCP);
+    DrawPoint(prefix, Y, qArray, iter, lim, dstCP);
     iter = iter + 1;
 
 end
 
-generateGif(iter-1, 10);
+GenerateGif(prefix, iter-1, 10);
 save('loss.mat', 'lossCurve');
