@@ -1,8 +1,8 @@
 function Y = Deform(DF, X)
     if strcmp(DF.method, 'ICP')
-        Y = ICPDeform(DF, X)
+        Y = ICPDeform(DF, X);
     elseif strcmp(DF.method, 'FFD')
-        Y = FFDDeform(DF, X)
+        Y = FFDDeform(DF, X);
     else
         throw 'No Such Deformation Method!'
     end

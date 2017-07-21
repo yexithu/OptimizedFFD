@@ -4,9 +4,9 @@ function DeformationField = ICP(modelP, modelQ, thershold)
     end
     
     DeformationField = struct();
-    DeformationField.method = 'icp';
+    DeformationField.method = 'ICP';
     p = modelP.p;
-    q = modelQ.q;
+    q = modelQ.p;
     pArray = SampleMatrix(p, 100);
     qArray = SampleMatrix(q, 100);
 
@@ -32,6 +32,7 @@ function DeformationField = ICP(modelP, modelQ, thershold)
         end
         preErr = err;
     end
+    fprintf('\t ICP MaxIter %d\n', k);
     DeformationField.R = r;
     DeformationField.S = s;
     DeformationField.T = t;

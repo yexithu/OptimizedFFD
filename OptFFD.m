@@ -1,7 +1,10 @@
-function DF = OptFFD(modelP, modelQ)
+function DF = OptFFD(modelP, modelQ, threshold)
 
+    if nargin < 3
+        threshold = 0;
+    end
     p = modelP.p;
-    q = modelQ.P;
+    q = modelQ.p;
 
     pArray = SampleMatrix(p, 100);
     qArray = SampleMatrix(q, 100);
@@ -30,11 +33,10 @@ function DF = OptFFD(modelP, modelQ)
     % DrawPoint(prefix, pArray, qArray, 0, lim, orgCP);
     maxIter = 50;
     iter = 0;
-
+    preloss = 0;
     lossCurve = zeros(3, maxIter);
     while iter < maxIter
         % calcualte target control points
-        % fprintf('Iter %d\n', iter);
 
         [dstCP, loss] = CalcDstCP(curCP, pArray, qArray, rotM, 0.1);
         lossCurve(:, iter + 1) = loss;
@@ -44,6 +46,11 @@ function DF = OptFFD(modelP, modelQ)
 
         Y = FFD(pBsCoeff, curCP);
         % DrawPoint(prefix, Y, qArray, iter, lim, dstCP);
+
+        if iter > 5 && preloss - loss(1) < threshold
+            break;
+        end
+        preloss = loss(1);
         iter = iter + 1;
     end
 
@@ -55,4 +62,5 @@ function DF = OptFFD(modelP, modelQ)
     DF.g = g;
     DF.orgCP = orgCP;
     DF.dstCP = dstCP;
+    fprintf('\t FFD MaxIter %d\n', iter);
 end
