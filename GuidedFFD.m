@@ -1,10 +1,10 @@
-function DF = GuidedFFD(modelP, modelQ, threshold)
+function DF = GuidedFFD(modelP, modelQ, lambda, threshold)
 
     vis = false;
     prefix = './guided/';
 
-    if nargin < 3
-        threshold = 0.00001;
+    if nargin < 4
+        threshold = 0.001;
     end
     p = modelP.p;
     q = modelQ.p;
@@ -41,14 +41,14 @@ function DF = GuidedFFD(modelP, modelQ, threshold)
         DrawPoint(prefix, pArray, qArray, 0, lim, orgCP);
     end
 
-    maxIter = 50;
+    maxIter = 200;
     iter = 0;
     preloss = 0;
     lossCurve = zeros(4, maxIter);
     while iter < maxIter
         % calcualte target control points
 
-        [dstCP, loss] = CalcGuidedDstCP(curCP, pArray, qArray, rotM, 0.1, 1);
+        [dstCP, loss] = CalcGuidedDstCP(curCP, pArray, qArray, rotM, 0.1, lambda);
         lossCurve(:, iter + 1) = loss;
         curCP = dstCP;
         % transform current control points in a as-rigid-as-possible way

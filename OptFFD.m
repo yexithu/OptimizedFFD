@@ -4,7 +4,7 @@ function DF = OptFFD(modelP, modelQ, threshold)
     prefix = './ffd/';
 
     if nargin < 3
-        threshold = 0.00001;
+        threshold = 0.001;
     end
     p = modelP.p;
     q = modelQ.p;
@@ -36,7 +36,7 @@ function DF = OptFFD(modelP, modelQ, threshold)
     if vis
         DrawPoint(prefix, pArray, qArray, 0, lim, orgCP);
     end
-    maxIter = 50;
+    maxIter = 200;
     iter = 0;
     preloss = 0;
     lossCurve = zeros(3, maxIter);

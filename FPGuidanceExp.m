@@ -3,7 +3,7 @@ resultRoot = '/h2/yexi/Desktop/result/';
 
 rng(123);
 
-availableIdx = [1:1:4];
+availableIdx = [1:1:94];
 availableIdx(availableIdx == 1) = [];
 availableIdx(availableIdx == 10) = [];
 availableIdx(availableIdx == 74) = [];
@@ -37,7 +37,7 @@ for refIdx = 1:length(refModels)
 
     for dstIdx = 1:length(availableIdx)
         dstObj = availableIdx(dstIdx);
-
+        fprintf('Processing %d -> %d\n',refObj, dstObj);
 
         modelP = load([dataRoot 'mat/' num2str(refObj) '.mat']);
         modelQ = load([dataRoot 'mat/' num2str(dstObj) '.mat']);
