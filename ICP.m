@@ -1,6 +1,6 @@
 function DeformationField = ICP(modelP, modelQ, thershold)
     if nargin < 3
-        thershold = 0;
+        threshold = 0.00001;
     end
     
     DeformationField = struct();
@@ -36,5 +36,6 @@ function DeformationField = ICP(modelP, modelQ, thershold)
     DeformationField.R = r;
     DeformationField.S = s;
     DeformationField.T = t;
+    DeformationField.closeLoss = preErr;
 end
 

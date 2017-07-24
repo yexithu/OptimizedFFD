@@ -1,7 +1,8 @@
-function [dstCP, loss] = CalcDstCP(curCP, pArray, qArray, rotM, lamda)
+function [dstCP, loss] = CalcGuidedDstCP(curCP, pArray, qArray, rotM, lambda1, lambda2)
 
-    if nargin < 5
-        lamda = 1;
+    if nargin < 6
+        lambda1 = 1;
+        lambda2 = 1;
     end
 
     global preCompStruct;
@@ -9,12 +10,14 @@ function [dstCP, loss] = CalcDstCP(curCP, pArray, qArray, rotM, lamda)
     [regLHS, regRHS, regLoss] = CalcFRegCoeff(rotM, preCompStruct.orgCP, curCP, ...
                             preCompStruct.nbrPointers, preCompStruct.g);
 
-    LHS = obsLHS + lamda * regLHS;
-    RHS = obsRHS + lamda * regRHS;
+    [guidedLHS, guidedRHS, guidedLoss] = CalcFObsCoeff(curCP, preCompStruct.fpBsCoeff,...
+                                                        preCompStruct.fqPts);
+    LHS = obsLHS + lambda1 * regLHS + lambda2 * guidedLHS;
+    RHS = obsRHS + lambda1 * regRHS + lambda2 * guidedRHS;
     % save
     dstCP = linsolve(LHS, RHS);
     dstCP = dstCP';
-    loss = [obsLoss; regLoss; obsLoss + lamda * regLoss];
+    loss = [obsLoss; regLoss; guidedLoss; obsLoss + lambda1 * regLoss + lambda2 * guidedLoss];
 end
 
 function [obsLHS, obsRHS, obsLoss] = CalcFObsCoeff(curCP, bsCoeff, qArray)

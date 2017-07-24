@@ -1,7 +1,7 @@
-function DF = OptFFD(modelP, modelQ, threshold)
+function DF = GuidedFFD(modelP, modelQ, threshold)
 
     vis = false;
-    prefix = './ffd/';
+    prefix = './guided/';
 
     if nargin < 3
         threshold = 0.00001;
@@ -21,8 +21,11 @@ function DF = OptFFD(modelP, modelQ, threshold)
     % grid num g, current control point curCP
     orgCP = CalcCtrlPt(pArray, g);
     pBsCoeff = CalcBSCoeff(pArray, g, orgCP);
+    fpBsCoeff = CalcBSCoeff(modelP.fPts, g, orgCP);
     preCompStruct.orgCP = orgCP;
     preCompStruct.pBsCoeff = pBsCoeff;
+    preCompStruct.fpBsCoeff = fpBsCoeff;
+    preCompStruct.fqPts = modelQ.fPts;
 
     rotM = cell((g+1)^3, 1);
     for index = 1: (g+1)^3
@@ -33,17 +36,19 @@ function DF = OptFFD(modelP, modelQ, threshold)
     curCP = preCompStruct.orgCP;
     % iterative optimization
     lim = [-25 200];
+
     if vis
         DrawPoint(prefix, pArray, qArray, 0, lim, orgCP);
     end
+
     maxIter = 50;
     iter = 0;
     preloss = 0;
-    lossCurve = zeros(3, maxIter);
+    lossCurve = zeros(4, maxIter);
     while iter < maxIter
         % calcualte target control points
 
-        [dstCP, loss] = CalcDstCP(curCP, pArray, qArray, rotM, 0.1);
+        [dstCP, loss] = CalcGuidedDstCP(curCP, pArray, qArray, rotM, 0.1, 1);
         lossCurve(:, iter + 1) = loss;
         curCP = dstCP;
         % transform current control points in a as-rigid-as-possible way
@@ -72,5 +77,5 @@ function DF = OptFFD(modelP, modelQ, threshold)
     DF.orgCP = orgCP;
     DF.dstCP = dstCP;
     DF.closeLoss = preloss;
-    fprintf('\t FFD MaxIter %d\n', iter);
+    fprintf('\t GuiedeFFD MaxIter %d\n', iter);
 end
