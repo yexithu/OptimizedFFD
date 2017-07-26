@@ -1,0 +1,10 @@
+function conf = GenConfig()
+    conf = struct();
+    conf.dataRoot = 'path to data root';
+    conf.resultRoot = 'path to result root';
+
+    conf.healhyRoot = [conf.dataRoot 'healthy/'];
+    conf.injuredRoot = [conf.dataRoot 'injured/'];
+
+    conf.featureUsed = {};
+end
