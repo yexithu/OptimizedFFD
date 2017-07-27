@@ -30,7 +30,7 @@ function [obsLHS, obsRHS, obsLoss] = CalcFObsCoeff(curCP, bsCoeff, qArray)
     % formulation 2B * B' * P = 2B * C
     % p: num ctrl pts, n: num samples
     % B: p by n, P: p by 3, C: n by 3
-    B = cell2mat(bsCoeff');
+    B = bsCoeff;
     C = cArray';
 
     obsLoss = sum(dist .^ 2) / n;

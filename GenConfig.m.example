@@ -6,5 +6,7 @@ function conf = GenConfig()
     conf.healhyRoot = [conf.dataRoot 'healthy/'];
     conf.injuredRoot = [conf.dataRoot 'injured/'];
 
+    conf.numGrid = 8;
+
     conf.featureUsed = {};
 end

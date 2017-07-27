@@ -8,8 +8,7 @@ function bsCoeff = CalcBSCoeff(X, g, orgCP)
     L = maxX - minX;
     D = D ./ (L * ones(1, n));
 
-    % bsCoeff = cell(g + 1, g + 1, g + 1);
-    bsCoeff = cell(n, 1);
+    bsCoeffCell = cell(n, 1);
     combntnV = zeros(g + 1, 1);
     for index = 1:g + 1
         combntnV(index) = nchoosek(g, index - 1);
@@ -34,7 +33,9 @@ function bsCoeff = CalcBSCoeff(X, g, orgCP)
                 end
             end
         end
-        bsCoeff{index} = coeff;
+        bsCoeffCell{index} = coeff;
     end
+
+    bsCoeff = cell2mat(bsCoeffCell');
 
 
