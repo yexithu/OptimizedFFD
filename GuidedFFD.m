@@ -45,10 +45,12 @@ function DF = GuidedFFD(modelP, modelQ, lambda, threshold)
     iter = 0;
     preloss = 0;
     lossCurve = zeros(4, maxIter);
+    
+    CalcGuidedDstCP(0.1, lambda);
     while iter < maxIter
         % calcualte target control points
 
-        [dstCP, loss] = CalcGuidedDstCP(curCP, pArray, qArray, rotM, 0.1, lambda);
+        [dstCP, loss] = CalcGuidedDstCP(0.1, lambda, curCP, pArray, qArray, rotM);
         lossCurve(:, iter + 1) = loss;
         curCP = dstCP;
         % transform current control points in a as-rigid-as-possible way

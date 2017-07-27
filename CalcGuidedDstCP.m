@@ -1,18 +1,25 @@
-function [dstCP, loss] = CalcGuidedDstCP(curCP, pArray, qArray, rotM, lambda1, lambda2)
+function [dstCP, loss] = CalcGuidedDstCP(lambda1, lambda2, curCP, pArray, qArray, rotM)
+
+    persistent LHS;
+    global preCompStruct;
+
+    if nargin == 2
+        LHS = CalcLHS(preCompStruct.pBsCoeff, preCompStruct.fpBsCoeff, ...
+                    preCompStruct.nbrPointers, preCompStruct.g, lambda1, lambda2);
+        return;
+    end
 
     if nargin < 6
         lambda1 = 1;
         lambda2 = 1;
     end
 
-    global preCompStruct;
-    [obsLHS, obsRHS, obsLoss] = CalcFObsCoeff(curCP, preCompStruct.pBsCoeff, qArray);
-    [regLHS, regRHS, regLoss] = CalcFRegCoeff(rotM, preCompStruct.orgCP, curCP, ...
+    [obsRHS, obsLoss] = CalcFObsCoeff(curCP, preCompStruct.pBsCoeff, qArray);
+    [regRHS, regLoss] = CalcFRegCoeff(rotM, preCompStruct.orgCP, curCP, ...
                             preCompStruct.nbrPointers, preCompStruct.g);
 
-    [guidedLHS, guidedRHS, guidedLoss] = CalcFObsCoeff(curCP, preCompStruct.fpBsCoeff,...
+    [guidedRHS, guidedLoss] = CalcFObsCoeff(curCP, preCompStruct.fpBsCoeff,...
                                                         preCompStruct.fqPts);
-    LHS = obsLHS + lambda1 * regLHS + lambda2 * guidedLHS;
     RHS = obsRHS + lambda1 * regRHS + lambda2 * guidedRHS;
     % save
     dstCP = linsolve(LHS, RHS);
@@ -20,7 +27,34 @@ function [dstCP, loss] = CalcGuidedDstCP(curCP, pArray, qArray, rotM, lambda1, l
     loss = [obsLoss; regLoss; guidedLoss; obsLoss + lambda1 * regLoss + lambda2 * guidedLoss];
 end
 
-function [obsLHS, obsRHS, obsLoss] = CalcFObsCoeff(curCP, bsCoeff, qArray)
+function LHS = CalcLHS(pBsCoeff, fpBsCoeff, nbrPointers, g, lambda1, lambda2)
+
+    nObs = size(pBsCoeff, 2);
+    obsLHS = 2 * pBsCoeff * pBsCoeff' / nObs;
+
+    p = (g + 1)^3;
+
+    regLHS = zeros(p, p);
+
+    % formulation A * P = B
+    for i = 1:p
+        ptrs = nbrPointers{i};
+
+        lineA = zeros(1, p);
+        lineA(i) = length(ptrs);
+        lineA(ptrs) = -1;
+        lineA = 4 * lineA;
+        regLHS(i, :) = lineA;
+    end
+    regLHS = regLHS / p;
+
+    nGuided = size(fpBsCoeff, 2);
+    guidedLHS = 2 * fpBsCoeff * fpBsCoeff' / nGuided;
+
+    LHS = obsLHS + lambda1 * regLHS + lambda2 * guidedLHS;
+end
+
+function [obsRHS, obsLoss] = CalcFObsCoeff(curCP, bsCoeff, qArray)
     n = size(bsCoeff, 2);
     % apply FFD on pArray
     tArray = FFD(bsCoeff, curCP);
@@ -38,14 +72,12 @@ function [obsLHS, obsRHS, obsLoss] = CalcFObsCoeff(curCP, bsCoeff, qArray)
 
     obsLoss = sum(dist .^ 2) / n;
 
-    obsLHS = 2 * B * B' / n;
     obsRHS = 2 * B * C / n;
 end
 
-function [regLHS, regRHS, regLoss] = CalcFRegCoeff(rotM, orgCP, curCP, nbrPointers, g)
+function [regRHS, regLoss] = CalcFRegCoeff(rotM, orgCP, curCP, nbrPointers, g)
     p = (g + 1)^3;
 
-    regLHS = zeros(p, p);
     regRHS = zeros(p, 3);
 
     regLoss = 0;
@@ -61,12 +93,6 @@ function [regLHS, regRHS, regLoss] = CalcFRegCoeff(rotM, orgCP, curCP, nbrPointe
 
         regLoss = regLoss + sum(dot(diffEdges, diffEdges));
 
-        lineA = zeros(1, p);
-        lineA(i) = length(ptrs);
-        lineA(ptrs) = -1;
-        lineA = 4 * lineA;
-        regLHS(i, :) = lineA;
-
         lineB = zeros(1, 3);
         for nbrIndex = 1:length(ptrs)
             j = ptrs(nbrIndex);
@@ -77,8 +103,7 @@ function [regLHS, regRHS, regLoss] = CalcFRegCoeff(rotM, orgCP, curCP, nbrPointe
 
         regRHS(i, :) = lineB;
     end
-    
+
     regLoss = regLoss / p;
-    regLHS = regLHS / p;
     regRHS = regRHS / p;
 end
