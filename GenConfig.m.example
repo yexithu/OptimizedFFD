@@ -3,10 +3,18 @@ function conf = GenConfig()
     conf.dataRoot = 'path to data root';
     conf.resultRoot = 'path to result root';
 
-    conf.healhyRoot = [conf.dataRoot 'healthy/'];
+    conf.healthyRoot = [conf.dataRoot 'healthy/'];
     conf.injuredRoot = [conf.dataRoot 'injured/'];
 
+
     conf.numGrid = 8;
+    modelIDs = [1:1:94];
+    modelIDs(modelIDs == 1) = [];
+    modelIDs(modelIDs == 10) = [];
+    modelIDs(modelIDs == 74) = [];
+
+    conf.modelIDs = modelIDs;
+
 
     conf.featureUsed = {};
 end

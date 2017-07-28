@@ -78,6 +78,6 @@ function DF = GuidedFFD(modelP, modelQ, lambda1, lambda2, threshold)
     DF.g = g;
     DF.orgCP = orgCP;
     DF.dstCP = dstCP;
-    DF.closeLoss = preloss;
+    DF.trainningLoss = loss(3);
     fprintf('\t GuiedeFFD MaxIter %d\n', iter);
 end

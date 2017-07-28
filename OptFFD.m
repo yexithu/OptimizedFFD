@@ -71,6 +71,6 @@ function DF = OptFFD(modelP, modelQ, threshold)
     DF.g = g;
     DF.orgCP = orgCP;
     DF.dstCP = dstCP;
-    DF.closeLoss = preloss;
+    DF.trainningLoss = preloss;
     fprintf('\t FFD MaxIter %d\n', iter);
 end

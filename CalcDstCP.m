@@ -18,7 +18,7 @@ function [dstCP, loss] = CalcDstCP(curCP, pArray, qArray, rotM, lamda)
 end
 
 function [obsLHS, obsRHS, obsLoss] = CalcFObsCoeff(curCP, bsCoeff, qArray)
-    n = length(bsCoeff);
+    n = size(bsCoeff, 2);
     % apply FFD on pArray
     tArray = FFD(bsCoeff, curCP);
 
