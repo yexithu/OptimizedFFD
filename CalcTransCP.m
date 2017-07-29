@@ -7,14 +7,15 @@ function rotCell = CalcTransCP(curCP, dstCP)
     n = size(curCP, 2);
 
     for cpIdx = 1:n
+        nPtrs = length(nbr{cpIdx});
         curNbr = curCP(:, nbr{cpIdx});
         dstNbr = dstCP(:, nbr{cpIdx});
 
         curCenter = curCP(:, cpIdx);
         dstCenter = dstCP(:, cpIdx);
 
-        curEdge = curCenter - curNbr;
-        dstEdge = dstCenter - dstNbr;
+        curEdge = curCenter * ones(1, nPtrs) - curNbr;
+        dstEdge = dstCenter * ones(1, nPtrs) - dstNbr;
 
         [~, ~, pCEdge, qCEdge] = Centralization(curEdge, dstEdge);
         [~, N] = CalcSumProd(pCEdge, qCEdge);

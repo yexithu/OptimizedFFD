@@ -79,11 +79,11 @@ function [regRHS, regLoss] = CalcFRegCoeff(rotM, orgCP, curCP, nbrPointers, g)
     % formulation A * P = B
     for i = 1:p
         ptrs = nbrPointers{i};
-
+        nPtrs = length(ptrs);
         orgCenter = orgCP(:, i);
         curCenter = curCP(:, i);
-        orgEdges = orgCP(:, ptrs) - orgCenter;
-        curEdges = curCP(:, ptrs) - curCenter;
+        orgEdges = orgCP(:, ptrs) - orgCenter * ones(1, nPtrs);
+        curEdges = curCP(:, ptrs) - curCenter * ones(1, nPtrs);
         diffEdges = curEdges - rotM{i} * orgEdges;
 
         regLoss = regLoss + sum(dot(diffEdges, diffEdges));
