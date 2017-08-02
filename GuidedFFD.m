@@ -1,9 +1,21 @@
-function DF = GuidedFFD(modelP, modelQ, lambda1, lambda2, threshold)
+function DF = GuidedFFD(modelP, modelQ, gamma1, gamma2, maxIter, threshold)
 
     vis = false;
     prefix = './guided/';
-
+    if vis
+        if isdir(prefix)
+            rmdir(prefix ,'s');
+        end
+        mkdir(prefix);
+    end
+    if nargin < 4
+        gamma1 = 2;
+        gamma2 = 2;
+    end
     if nargin < 5
+        maxIter = 100;
+    end
+    if nargin < 6
         threshold = 0.001;
     end
     p = modelP.p;
@@ -27,38 +39,33 @@ function DF = GuidedFFD(modelP, modelQ, lambda1, lambda2, threshold)
     preCompStruct.fpBsCoeff = fpBsCoeff;
     preCompStruct.fqPts = modelQ.fPts;
 
-    rotM = cell((g+1)^3, 1);
-    for index = 1: (g+1)^3
-        rotM{index} = eye(3);
-    end
-
-    orgRotM = rotM;
-    curCP = preCompStruct.orgCP;
+    [curCP, rotM] = InitCPRotM(modelP.fPts, modelQ.fPts, orgCP);
     % iterative optimization
     lim = [-25 200];
 
     if vis
-        DrawPoint(prefix, pArray, qArray, 0, lim, orgCP);
+        Y = FFD(pBsCoeff, curCP);
+        DrawPoint(prefix, Y, qArray, 0, lim, curCP);
     end
 
-    maxIter = 200;
     iter = 0;
     preloss = 0;
     lossCurve = zeros(4, maxIter);
 
-    CalcGuidedDstCP(lambda1, lambda2);
+    CalcGuidedDstCP();
     while iter < maxIter
         % calcualte target control points
-
+        lambda1 = 0.1 + 0.9 * (1 - iter / maxIter) ^ gamma1;
+        lambda2 = 0.1 + 0.9 * (iter / maxIter) ^ gamma2;
         [dstCP, loss] = CalcGuidedDstCP(lambda1, lambda2, curCP, pArray, qArray, rotM);
-        lossCurve(:, iter + 1) = loss;
+        lossCurve(:, iter + 1) = loss;        
         curCP = dstCP;
         % transform current control points in a as-rigid-as-possible way
         rotM = CalcTransCP(orgCP, dstCP);
 
-        Y = FFD(pBsCoeff, curCP);
         if vis
-            DrawPoint(prefix, Y, qArray, iter, lim, dstCP);
+            Y = FFD(pBsCoeff, curCP);
+            DrawPoint(prefix, Y, qArray, iter, lim, curCP);
         end
 
         if iter > 5 && preloss - loss(end) < threshold
@@ -78,6 +85,6 @@ function DF = GuidedFFD(modelP, modelQ, lambda1, lambda2, threshold)
     DF.g = g;
     DF.orgCP = orgCP;
     DF.dstCP = dstCP;
-    DF.trainningLoss = loss(3);
+    DF.trainningLoss = loss(end);
     fprintf('\t GuiedeFFD MaxIter %d\n', iter);
 end
