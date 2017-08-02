@@ -1,12 +1,17 @@
-function [dstCP, loss] = CalcGuidedDstCP(lambda1, lambda2, curCP, pArray, qArray, rotM)
+function [dstCP, loss] = CalcGuidedDstCP(lambda1, lambda2, curCP, pArray, qArray, rotM, ratio)
 
-    persistent LHS;
+    persistent obsLHS;
+    persistent regLHS;
+    persistent guidedLHS;
     global preCompStruct;
 
-    if nargin == 2
-        LHS = CalcLHS(preCompStruct.pBsCoeff, preCompStruct.fpBsCoeff, ...
-                    preCompStruct.nbrPointers, preCompStruct.g, lambda1, lambda2);
+    if nargin == 0
+        [obsLHS, regLHS, guidedLHS] = CalcLHS(preCompStruct.pBsCoeff, preCompStruct.fpBsCoeff, ...
+                    preCompStruct.nbrPointers, preCompStruct.g);
         return;
+    end
+    if nargin == 6
+        ratio = 0.1;
     end
 
     [obsRHS, obsLoss] = CalcFObsCoeff(curCP, preCompStruct.pBsCoeff, qArray);
@@ -15,14 +20,15 @@ function [dstCP, loss] = CalcGuidedDstCP(lambda1, lambda2, curCP, pArray, qArray
 
     [guidedRHS, guidedLoss] = CalcFObsCoeff(curCP, preCompStruct.fpBsCoeff,...
                                                         preCompStruct.fqPts);
+    LHS = obsLHS + lambda1 * regLHS + lambda2 * guidedLHS;
     RHS = obsRHS + lambda1 * regRHS + lambda2 * guidedRHS;
     % save
     dstCP = linsolve(LHS, RHS);
     dstCP = dstCP';
-    loss = [obsLoss; regLoss; guidedLoss; obsLoss + lambda2 * guidedLoss];
+    loss = [obsLoss; regLoss; guidedLoss; obsLoss + ratio * guidedLoss];
 end
 
-function LHS = CalcLHS(pBsCoeff, fpBsCoeff, nbrPointers, g, lambda1, lambda2)
+function [obsLHS, regLHS, guidedLHS] = CalcLHS(pBsCoeff, fpBsCoeff, nbrPointers, g)
 
     nObs = size(pBsCoeff, 2);
     obsLHS = 2 * pBsCoeff * pBsCoeff' / nObs;
@@ -45,8 +51,6 @@ function LHS = CalcLHS(pBsCoeff, fpBsCoeff, nbrPointers, g, lambda1, lambda2)
 
     nGuided = size(fpBsCoeff, 2);
     guidedLHS = 2 * fpBsCoeff * fpBsCoeff' / nGuided;
-
-    LHS = obsLHS + lambda1 * regLHS + lambda2 * guidedLHS;
 end
 
 function [obsRHS, obsLoss] = CalcFObsCoeff(curCP, bsCoeff, qArray)
